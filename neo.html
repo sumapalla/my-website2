@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NEO Chat</title>
+  <style>
+    body {
+      background: radial-gradient(circle at top, #001f3f, #000814); /* dark blue background */
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh; font-family: "Segoe UI", Arial, sans-serif;
+      color: #ffffff; /* default text white */
+    }
+    .chat-container {
+      width: 420px; height: 620px;
+      background: #001f3f; border-radius: 20px;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+      border: 2px solid #ffd700; /* golden yellow border */
+      color: #ffffff;
+    }
+    .chat-header {
+      background: linear-gradient(135deg, #ffd700, #ffec8b);
+      padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid #001f3f;
+      color: #ffffff;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .bot-icon { font-size: 26px; color: #ffffff; text-shadow: 0 0 12px #ffd700; }
+    .title-text { font-size: 22px; font-weight: 900; letter-spacing: 2px; color: #ffffff; }
+    .chat-header button {
+      background: #98FF98; /* mint */
+      border: none; color: #001f3f;
+      font-size: 13px; font-weight: 700; padding: 6px 14px;
+      border-radius: 20px; cursor: pointer;
+      transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .chat-header button:hover {
+      background: #ffd700; color: #001f3f;
+      transform: scale(1.1); box-shadow: 0 0 12px #ffd700;
+    }
+    .chat-box { flex: 1; padding: 14px; overflow-y: auto; background: #000814; color: #ffffff; }
+    .message {
+      max-width: 78%; padding: 12px 14px; margin: 10px 0;
+      border-radius: 14px; font-size: 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      color: #ffffff;
+    }
+    .user { background: #ffd700; color: #ffffff; margin-left: auto; }
+    .bot { background: #001f3f; color: #ffffff; margin-right: auto; border: 1px solid #ffd700; }
+    .time { font-size: 10px; opacity: 0.7; margin-top: 4px; color: #ffffff; }
+    .chat-input {
+      display: flex; align-items: center; padding: 12px;
+      background: #001f3f; border-top: 2px solid #ffd700;
+      color: #ffffff;
+    }
+    .chat-input input {
+      flex: 1; padding: 12px 14px; border-radius: 14px; border: none;
+      background: #000814; color: #ffffff; font-size: 16px;
+    }
+    .chat-input input::placeholder { color: #ffffff; opacity: 0.6; }
+    .chat-input button {
+      margin-left: 10px; height: 46px; width: 46px;
+      border: none; border-radius: 50%; background: #98FF98;
+      font-size: 22px; cursor: pointer; color: #001f3f;
+      transition: all 0.3s ease; display: flex; justify-content: center; align-items: center;
+    }
+    .chat-input button:hover { background: #ffd700; color: #001f3f; transform: scale(1.15); }
+    .chat-input svg { width: 24px; height: 24px; fill: #001f3f; }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="header-left">
+      <span class="bot-icon">🤖</span>
+      <span class="title-text">NEO</span>
+    </div>
+    <button id="newChatBtn" type="button">＋ New Chat</button>
+  </div>
+
+  <div id="chatBox" class="chat-box"></div>
+
+  <div class="chat-input">
+    <input type="text" id="userInput" placeholder="Type a message..." />
+    <!-- Mint mic button with sound-wave icon -->
+    <button id="micBtn" type="button" aria-label="Mic">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="10" width="2" height="4"/>
+        <rect x="6" y="6" width="2" height="12"/>
+        <rect x="10" y="2" width="2" height="20"/>
+        <rect x="14" y="6" width="2" height="12"/>
+        <rect x="18" y="10" width="2" height="4"/>
+      </svg>
+    </button>
+    <!-- Mint send button -->
+    <button id="sendBtn" type="button">➤</button>
+  </div>
+</div>
+
+<script>
+  const chatBox = document.getElementById("chatBox");
+  const userInput = document.getElementById("userInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const newChatBtn = document.getElementById("newChatBtn");
+  const micBtn = document.getElementById("micBtn");
+  let recognition;
+
+  function getTime() {
+    const now = new Date();
+    return now.toLocaleTimeString([], {hour: "numeric", minute: "2-digit", hour12: true});
+  }
+
+  function addMessage(text, sender) {
+    const msg = document.createElement("div");
+    msg.className = "message " + sender;
+    msg.innerHTML = text + `<div class="time">${getTime()}</div>`;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function botReply(userText) {
+    const text = userText.trim().toLowerCase();
+    let reply = "I'm NEO 🤖. Please ask me something!";
+    if (["hi","hello","hey"].includes(text)) reply = "Hello 👋 I'm NEO 🤖. Ask me anything!";
+    else if (text.includes("your name")) reply = "My name is NEO 🤖";
+    else if (text.includes("bye")) reply = "Goodbye 👋 Have a nice day!";
+    else if (/^[0-9+\-*/%().\s]+$/.test(text)) {
+      try { reply = "The answer is " + Function(`return ${text}`)(); }
+      catch { reply = "Hmm, I couldn't calculate that."; }
+    }
+    addMessage(reply,"bot");
+  }
+
+  function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
+    addMessage(text,"user");
+    userInput.value="";
+    botReply(text);
+  }
+
+  function startNewChat() {
+    chatBox.innerHTML = "";
+    addMessage("Hello 👋 I'm NEO 🤖. Ask me anything!","bot");
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  newChatBtn.addEventListener("click", startNewChat);
+  userInput.addEventListener("keyup", e => { if(e.key==="Enter") sendMessage(); });
+
+  if ("webkitSpeechRecognition" in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+    recognition.onstart = () => { micBtn.style.background = "#ffd700"; };
+    recognition.onend = () => { micBtn.style.background = "#98FF98"; };
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      userInput.value = transcript;
+      sendMessage();
+    };
+  } else {
+    micBtn.disabled = true;
+    micBtn.title = "Speech recognition not supported";
+  }
+
+  micBtn.addEventListener("click", () => {
+    if (recognition) recognition.start();
+  });
+
+  startNewChat();
+</script>
+
+</body>
+</html>
