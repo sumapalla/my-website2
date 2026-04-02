@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SRIYAN HUB</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background: linear-gradient(-45deg, #007BFF, #FFD700, #00c6ff, #ffdd00);
+    background-size: 400% 400%;
+    animation: bg 10s ease infinite;
+    color: white;
+}
+
+@keyframes bg {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+
+/* CENTER SCREEN */
+.center {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+/* GLASS BOX */
+.box {
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.15);
+    padding: 25px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+}
+
+/* TITLE */
+h1 {
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+/* BUTTON */
+.unlock {
+    padding: 15px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    color: white;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.unlock:hover {
+    transform: scale(1.1);
+}
+
+/* HOME CARDS */
+.card {
+    display: inline-block;
+    width: 200px;
+    padding: 25px;
+    margin: 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.1);
+}
+
+.scratch {
+    background: linear-gradient(45deg, #ffcc00, #ff6600);
+}
+
+.drawing {
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+}
+
+/* SECTIONS */
+.section {
+    display: none;
+    height: 100vh;
+    width: 100vw;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* FILE BUTTON */
+.file-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    margin: 10px;
+    border-radius: 15px;
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    cursor: pointer;
+}
+
+.file-btn input {
+    display: none;
+}
+
+/* ITEMS */
+.item {
+    background: rgba(255,255,255,0.2);
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 15px;
+    max-width: 500px;
+}
+
+img {
+    width: 120px;
+    border-radius: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    border-radius: 12px;
+    border: none;
+    margin: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.save { background: #00ffcc; }
+.delete { background: red; color: white; }
+.download { background: limegreen; }
+</style>
+</head>
+
+<body>
+
+<!-- UNLOCK SCREEN -->
+<div class="center" id="unlockScreen">
+    <div class="box">
+        <h1>🔓 SRIYAN HUB</h1>
+        <p>Tap to unlock</p>
+        <br>
+        <button class="unlock" onclick="unlock()">UNLOCK 🚀</button>
+    </div>
+</div>
+
+<!-- HOME -->
+<div class="center" id="home" style="display:none;">
+    <div class="box">
+        <h1>🚀 SRIYAN SCRATCH PROJECTS AND DRAWINGS</h1>
+
+        <div class="card scratch" onclick="openScratch()">🐱 SCRATCH</div>
+        <div class="card drawing" onclick="openDrawing()">🎨 DRAWING</div>
+    </div>
+</div>
+
+<!-- SCRATCH -->
+<div class="section" id="scratch">
+    <div class="box">
+        <h1>🐱 SCRATCH FILES</h1>
+
+        <label class="file-btn">
+            🎓 Choose SB3
+            <input type="file" id="sb3" accept=".sb3">
+        </label>
+
+        <br>
+        <button class="save" onclick="saveSB3()">SAVE</button>
+        <button onclick="back()">⬅ BACK</button>
+
+        <div id="sb3List"></div>
+    </div>
+</div>
+
+<!-- DRAWING -->
+<div class="section" id="drawing">
+    <div class="box">
+        <h1>🎨 DRAWINGS</h1>
+
+        <label class="file-btn">
+            🖼 Choose Image
+            <input type="file" id="img" accept="image/*">
+        </label>
+
+        <br>
+        <button class="save" onclick="saveImg()">SAVE</button>
+        <button onclick="back()">⬅ BACK</button>
+
+        <div id="imgList"></div>
+    </div>
+</div>
+
+<script>
+
+/* UNLOCK */
+function unlock(){
+    document.getElementById("unlockScreen").style.display = "none";
+    document.getElementById("home").style.display = "flex";
+}
+
+/* NAV */
+function openScratch(){
+    document.getElementById("home").style.display = "none";
+    document.getElementById("scratch").style.display = "block";
+    loadSB3();
+}
+
+function openDrawing(){
+    document.getElementById("home").style.display = "none";
+    document.getElementById("drawing").style.display = "block";
+    loadImg();
+}
+
+function back(){
+    document.getElementById("scratch").style.display = "none";
+    document.getElementById("drawing").style.display = "none";
+    document.getElementById("home").style.display = "flex";
+}
+
+/* SB3 SAVE */
+function saveSB3(){
+    let f=document.getElementById("sb3").files[0];
+    if(!f)return;
+
+    let r=new FileReader();
+    r.onload=function(e){
+        let d=JSON.parse(localStorage.getItem("sb3")||"[]");
+        d.push({name:f.name,content:e.target.result});
+        localStorage.setItem("sb3",JSON.stringify(d));
+        loadSB3();
+    }
+    r.readAsDataURL(f);
+}
+
+function loadSB3(){
+    let list=document.getElementById("sb3List");
+    list.innerHTML="";
+    let d=JSON.parse(localStorage.getItem("sb3")||"[]");
+
+    d.forEach((x,i)=>{
+        list.innerHTML+=`
+        <div class="item">
+            📄 ${x.name}<br>
+            <button class="download" onclick="dl(${i})">⬇</button>
+            <button class="delete" onclick="delSB3(${i})">🗑</button>
+        </div>`;
+    });
+}
+
+function dl(i){
+    let f=JSON.parse(localStorage.getItem("sb3"))[i];
+    let a=document.createElement("a");
+    a.href=f.content;
+    a.download=f.name;
+    a.click();
+}
+
+function delSB3(i){
+    let d=JSON.parse(localStorage.getItem("sb3"));
+    d.splice(i,1);
+    localStorage.setItem("sb3",JSON.stringify(d));
+    loadSB3();
+}
+
+/* IMAGES */
+function saveImg(){
+    let f=document.getElementById("img").files[0];
+    if(!f)return;
+
+    let r=new FileReader();
+    r.onload=function(e){
+        let d=JSON.parse(localStorage.getItem("img")||"[]");
+        d.push(e.target.result);
+        localStorage.setItem("img",JSON.stringify(d));
+        loadImg();
+    }
+    r.readAsDataURL(f);
+}
+
+function loadImg(){
+    let list=document.getElementById("imgList");
+    list.innerHTML="";
+    let d=JSON.parse(localStorage.getItem("img")||"[]");
+
+    d.forEach((x,i)=>{
+        list.innerHTML+=`
+        <div class="item">
+            <img src="${x}"><br>
+            <button class="delete" onclick="delImg(${i})">🗑</button>
+        </div>`;
+    });
+}
+
+function delImg(i){
+    let d=JSON.parse(localStorage.getItem("img"));
+    d.splice(i,1);
+    localStorage.setItem("img",JSON.stringify(d));
+    loadImg();
+}
+</script>
+
+</body>
+</html>
